@@ -83,27 +83,48 @@ app.get("/cities", (req, res) => {
   user.find({}, { city: 1, email: 1 }).then((user) => res.send(user));
 });
 
-app.post("/cities", (req, res) => {
-  const { newCity, currentUserEmail } = req.body;
-  // console.log(newCity, currentUserEmail);
-  // user.updateMany({ email: email });
+app.post("/cities/:currentUserEmail/:request", (req, res) => {
+  //For adding the new city
+  const { currentUserEmail, request } = req.params;
 
-  user
-    .findOneAndUpdate(
-      { email: currentUserEmail }, // Query to find the user by ObjectId
-      { $push: { city: newCity } }, // Use $push to add newCity to the city array
-      { new: true } // Set 'new' option to true to return the updated document
-    )
-    .then((updatedUser) => {
-      if (updatedUser) {
-        console.log("City added successfully:", updatedUser);
-      } else {
-        console.log("User not found.");
-      }
-    })
-    .catch((error) => {
-      console.error("Error adding city:", error);
-    });
+  if (request === "createCity") {
+    const { newCity } = req.body;
+    user
+      .findOneAndUpdate(
+        { email: currentUserEmail }, // Query to find the user by ObjectId
+        { $push: { city: newCity } }, // Use $push to add newCity to the city array
+        { new: true } // Set 'new' option to true to return the updated document
+      )
+      .then((updatedUser) => {
+        if (updatedUser) {
+          console.log("City added successfully");
+        } else {
+          console.log("User not found.");
+        }
+      })
+      .catch((error) => {
+        console.error("Error adding city:", error);
+      });
+  }
+  if (request === "deleteCity") {
+    const { id } = req.body;
+    user
+      .findOneAndUpdate(
+        { email: currentUserEmail }, // Query to find the user by ObjectId
+        { $pull: { city: { _id: id } } }, // Use $push to add newCity to the city array
+        { new: true } // Set 'new' option to true to return the updated document
+      )
+      .then((updatedUser) => {
+        if (updatedUser) {
+          console.log("City deleted successfully");
+        } else {
+          console.log("User not found.");
+        }
+      })
+      .catch((error) => {
+        console.error("Error adding city:", error);
+      });
+  }
 });
 
 app.listen(PORT, () => console.log(`http://localhost:${PORT}`));
