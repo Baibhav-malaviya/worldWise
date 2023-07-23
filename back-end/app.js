@@ -37,29 +37,7 @@ const userSchema = new mongoose.Schema({
 
 const user = mongoose.model("user", userSchema);
 
-const city = mongoose.model("city", citySchema);
-
-const newUser = new user({
-  fullName: "Ram",
-  userName: "call_me_ram",
-  email: "ram@gmail.com",
-  password: "kalyug@top",
-  position: { lat: 22, lng: 45 },
-  city: [
-    {
-      cityName: "Madrid",
-      country: "Spain",
-      emoji: "🇪🇸",
-      date: "2027-07-15T08:22:53.976Z",
-      notes: "",
-      position: {
-        lat: 40.46635901755316,
-        lng: -3.7133789062500004,
-      },
-    },
-  ],
-  avatar: "http://www.generate-apatar.com/images/icon/ramG",
-});
+// const city = mongoose.model("city", citySchema);
 
 app.get("/users", (req, res) => {
   user.find({}).then((user) => res.send(user));
@@ -84,15 +62,19 @@ app.get("/cities", (req, res) => {
 });
 
 app.post("/cities/:currentUserEmail/:request", (req, res) => {
-  //For adding the new city
+  //TODO ######## currentUserEmail and request is the parameters passed
+
   const { currentUserEmail, request } = req.params;
+
+  //TODO ####### For adding a new city to the city list.
 
   if (request === "createCity") {
     const { newCity } = req.body;
+
     user
       .findOneAndUpdate(
-        { email: currentUserEmail }, // Query to find the user by ObjectId
-        { $push: { city: newCity } }, // Use $push to add newCity to the city array
+        { email: currentUserEmail }, //! Query to find the user with email=== currentUserEmail
+        { $push: { city: newCity } }, //! Use $push to add newCity to the city array
         { new: true } // Set 'new' option to true to return the updated document
       )
       .then((updatedUser) => {
@@ -106,12 +88,16 @@ app.post("/cities/:currentUserEmail/:request", (req, res) => {
         console.error("Error adding city:", error);
       });
   }
+
+  //TODO ########## For deleting a city from the city list.
+
   if (request === "deleteCity") {
     const { id } = req.body;
+
     user
       .findOneAndUpdate(
-        { email: currentUserEmail }, // Query to find the user by ObjectId
-        { $pull: { city: { _id: id } } }, // Use $push to add newCity to the city array
+        { email: currentUserEmail }, //! Query to find the user with email=== currentUserEmail
+        { $pull: { city: { _id: id } } }, //! Use to pull the a city from the city array having _id === id
         { new: true } // Set 'new' option to true to return the updated document
       )
       .then((updatedUser) => {
